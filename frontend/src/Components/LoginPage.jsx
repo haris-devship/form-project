@@ -17,57 +17,124 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  useToast,
 } from "@chakra-ui/react";
+import axios from "axios";
 import { CloseIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 const LoginPage = () => {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    age: "",
-    gender: "male",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    image: null,
-  });
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState("male");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [image, setImage] = useState();
+  const [picLoading, setPicLoading] = useState(false);
+  const toast = useToast();
+  const [data, setData] = useState();
 
   const [showPassword, setShowPassword] = useState(false);
   const [passwordMatchError, setPasswordMatchError] = useState(false);
 
-  const handleInputChange = (e) => {
-    const { name, value, type, files } = e.target;
-    if (type === "file") {
-      setFormData({
-        ...formData,
-        [name]: files[0],
+  const postDetails = (pics) => {
+    setPicLoading(true);
+    if (pics === undefined) {
+      toast({
+        title: "PLease select an Image!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
       });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
+      return;
+      // return;
     }
-    // console.log(name, value, type, files);
+    if (pics.type === "image/jpeg" || pics.type === "image/png") {
+      const data = new FormData();
+      data.append("file", pics);
+      data.append("upload_preset", "form_Application");
+      data.append("cloud_name", "dnwctwnnx");
+      fetch("https://api.cloudinary.com/v1_1/dnwctwnnx/image/upload", {
+        method: "post",
+        body: data,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setImage(data.url.toString());
+          // console.log(data);
+          setPicLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setPicLoading(false);
+        });
+    } else {
+      toast({
+        title: "PLease select an Image!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setPicLoading(false);
+      return;
+    }
   };
+  // console.log(image);
 
   const handleRemoveImage = () => {
-    setFormData({
-      ...formData,
-      image: null,
-    });
+    setImage(null);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
+    setPicLoading(true);
+    if (password !== confirmPassword) {
       setPasswordMatchError(true);
+      toast({
+        title: "Password Do Not Match",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setPicLoading(false);
       return;
     } else {
       setPasswordMatchError(false);
-      console.log(formData);
+      axios
+        .post("http://localhost:8000/user/signup", {
+          firstName,
+          lastName,
+          age,
+          gender,
+          email,
+          password,
+          image,
+        })
+        .then((res) => {
+          // console.log(res.data);
+          setData(res.data);
+          setPicLoading(false);
+        })
+        .catch((err) => {
+          console.log(err.response.data.message);
+          toast({
+            title: err.response.data.message,
+            status: "warning",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom",
+          });
+          setPicLoading(false);
+        });
+      // console.log(firstName, lastName, age, gender, email, password, image);
     }
   };
+
+  console.log(data)
 
   return (
     <>
@@ -84,8 +151,8 @@ const LoginPage = () => {
                   <Input
                     type="text"
                     name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
+                    // value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
                   />
                 </FormControl>
 
@@ -94,8 +161,8 @@ const LoginPage = () => {
                   <Input
                     type="text"
                     name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
+                    // value={formData.lastName}
+                    onChange={(e) => setLastName(e.target.value)}
                   />
                 </FormControl>
               </Flex>
@@ -105,8 +172,8 @@ const LoginPage = () => {
                 <Input
                   type="number"
                   name="age"
-                  value={formData.age}
-                  onChange={handleInputChange}
+                  // value={formData.age}
+                  onChange={(e) => setAge(e.target.value)}
                 />
               </FormControl>
 
@@ -114,8 +181,7 @@ const LoginPage = () => {
                 <FormLabel>Gender</FormLabel>
                 <RadioGroup
                   name="gender"
-                  value={formData.gender}
-                  onChange={handleInputChange}
+                  onChange={(e) => setGender(e.target.value)}
                 >
                   <Stack direction="row">
                     <Radio value="male">Male</Radio>
@@ -130,8 +196,8 @@ const LoginPage = () => {
                 <Input
                   type="email"
                   name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
+                  // value={formData.email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </FormControl>
 
@@ -141,8 +207,8 @@ const LoginPage = () => {
                   <Input
                     type={showPassword ? "text" : "password"}
                     name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
+                    // value={formData.password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                   <InputRightElement width="3rem">
                     <IconButton
@@ -160,8 +226,8 @@ const LoginPage = () => {
                 <Input
                   type="password"
                   name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
+                  // value={formData.confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </FormControl>
               {passwordMatchError && (
@@ -173,13 +239,9 @@ const LoginPage = () => {
 
               <FormControl id="image">
                 <FormLabel>Image</FormLabel>
-                {formData.image ? (
+                {image ? (
                   <Stack direction="row" alignItems="center">
-                    <Image
-                      src={URL.createObjectURL(formData.image)}
-                      maxH="100px"
-                      maxW="100px"
-                    />
+                    <Image src={image} maxH="100px" maxW="100px" />
                     <IconButton
                       size="sm"
                       rounded="full"
@@ -192,12 +254,19 @@ const LoginPage = () => {
                   <Input
                     type="file"
                     name="image"
-                    onChange={handleInputChange}
+                    onChange={(e) => postDetails(e.target.files[0])}
+                    accept="image/*"
                   />
                 )}
               </FormControl>
 
-              <Button type="submit" colorScheme="teal" size="lg">
+              <Button
+                loadingText="loading"
+                isLoading={picLoading}
+                type="submit"
+                colorScheme="teal"
+                size="lg"
+              >
                 Submit
               </Button>
             </Stack>
