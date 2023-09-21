@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import {
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Container,
@@ -31,6 +33,7 @@ const LoginPage = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordMatchError, setPasswordMatchError] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -39,7 +42,7 @@ const LoginPage = () => {
         ...formData,
         [name]: files[0],
       });
-    }  else  {
+    } else {
       setFormData({
         ...formData,
         [name]: value,
@@ -57,12 +60,18 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+    if (formData.password !== formData.confirmPassword) {
+      setPasswordMatchError(true);
+      return;
+    } else {
+      setPasswordMatchError(false);
+      console.log(formData);
+    }
   };
 
   return (
     <>
-      <Container  centerContent>
+      <Container centerContent>
         <Box boxShadow={"dark-lg"} p={10} mt={10}>
           <Heading as="h2" size="lg" mb={6}>
             Login
@@ -70,27 +79,26 @@ const LoginPage = () => {
           <form onSubmit={handleSubmit}>
             <Stack spacing={4}>
               <Flex gap={2}>
-              <FormControl id="firstName" isRequired>
-                <FormLabel>First Name</FormLabel>
-                <Input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                />
-              </FormControl>
+                <FormControl id="firstName" isRequired>
+                  <FormLabel>First Name</FormLabel>
+                  <Input
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                  />
+                </FormControl>
 
-              <FormControl id="lastName" isRequired>
-                <FormLabel>Last Name</FormLabel>
-                <Input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                />
-              </FormControl>
+                <FormControl id="lastName" isRequired>
+                  <FormLabel>Last Name</FormLabel>
+                  <Input
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                  />
+                </FormControl>
               </Flex>
-             
 
               <FormControl id="age" isRequired>
                 <FormLabel>Age</FormLabel>
@@ -141,9 +149,8 @@ const LoginPage = () => {
                       h="1.5rem"
                       size="sm"
                       onClick={() => setShowPassword(!showPassword)}
-                      icon={!showPassword ? <ViewIcon/>: <ViewOffIcon/>}
-                    >
-                    </IconButton>
+                      icon={!showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                    ></IconButton>
                   </InputRightElement>
                 </InputGroup>
               </FormControl>
@@ -157,8 +164,13 @@ const LoginPage = () => {
                   onChange={handleInputChange}
                 />
               </FormControl>
+              {passwordMatchError && (
+                <Alert status="error">
+                  <AlertIcon />
+                  Passwords do not match.
+                </Alert>
+              )}
 
-              
               <FormControl id="image">
                 <FormLabel>Image</FormLabel>
                 {formData.image ? (
@@ -169,9 +181,9 @@ const LoginPage = () => {
                       maxW="100px"
                     />
                     <IconButton
-                     size="sm"
-                     rounded="full"
-                     colorScheme="red"
+                      size="sm"
+                      rounded="full"
+                      colorScheme="red"
                       icon={<CloseIcon />}
                       onClick={handleRemoveImage}
                     />
