@@ -49,7 +49,7 @@ const LoginPage = () => {
     setPicLoading(true);
     if (pics === undefined) {
       toast({
-        title: "PLease select an Image!",
+        title: "Please select an Image!",
         status: "warning",
         duration: 5000,
         isClosable: true,

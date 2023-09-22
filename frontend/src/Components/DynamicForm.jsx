@@ -61,7 +61,53 @@ const DynamicForm = () => {
     ]);
   };
 
+  const postDetails = (index, field, value) => {
+    setLoading(true);
+    if (value === undefined) {
+      toast({
+        title: "Please select an Image!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+    if (value.type === "image/jpeg" || value.type === "image/png") {
+      const data = new FormData();
+      data.append("file", value);
+      data.append("upload_preset", "form_Application");
+      data.append("cloud_name", "dnwctwnnx");
+      fetch("https://api.cloudinary.com/v1_1/dnwctwnnx/image/upload", {
+        method: "post",
+        body: data,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const diffData = data.url.toString();
+          const updatedForms = [...forms];
+          updatedForms[index][field] = diffData;
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
+    } else {
+      toast({
+        title: "PLease select an Image!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+  };
   const handleSubmit = async () => {
+    console.log(forms);
+    setLoading(true);
     try {
       const formDataArray = forms?.map((ele) => ({
         name: ele.name,
@@ -74,24 +120,35 @@ const DynamicForm = () => {
       await axios
         .post("http://localhost:8000/form/api/addForm", formDataArray)
         .then((res) => {
-          console.log(res.response);
+          //   console.log(res.data.message);
           toast({
-            title: "Form added successfully",
+            title: res.data.message,
             status: "success",
             isClosable: true,
             duration: 3000,
           });
+          setLoading(false);
         })
         .catch((err) => {
-            console.log(err)
+          setLoading(false);
+          //   console.log(err);
           toast({
-            title: "Invalid URL",
+            title: "Failed to Add, Try again",
             status: "error",
             isClosable: true,
             duration: 3000,
           });
         });
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+      toast({
+        title: err.response.data.message,
+        status: "error",
+        isClosable: true,
+        duration: 3000,
+      });
+      setLoading(false);
+    }
   };
 
   return (
@@ -144,9 +201,11 @@ const DynamicForm = () => {
                 <FormLabel>File Upload</FormLabel>
                 <input
                   type="file"
+                  name="image"
                   onChange={(e) =>
-                    handleChange(index, "file", e.target.files[0])
+                    postDetails(index, "file", e.target.files[0])
                   }
+                  accept="image/*"
                 />
               </FormControl>
 
@@ -188,7 +247,12 @@ const DynamicForm = () => {
           >
             Add Form
           </Button>
-          <Button onClick={handleSubmit} colorScheme="blue">
+          <Button
+            loadingText="loading"
+            isLoading={loading}
+            onClick={handleSubmit}
+            colorScheme="blue"
+          >
             SUBMIT
           </Button>
         </Box>
