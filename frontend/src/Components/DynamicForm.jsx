@@ -105,6 +105,7 @@ const DynamicForm = () => {
       return;
     }
   };
+  
   const handleSubmit = async () => {
     console.log(forms);
     setLoading(true);
