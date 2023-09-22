@@ -1,8 +1,8 @@
-// const { Router } = require("express");
-// const { addForm } = require("../controllers/form/form.controller");
+const { Router } = require("express");
+const { addForm } = require("../controllers/form/form.controller");
 
-// const FormRouter = Router();
+const FormRouter = Router();
 
-// FormRouter.post("/api/addForm",addForm);
+FormRouter.post("/api/addForm",addForm);
 
-// module.exports = { FormRouter };
+module.exports = { FormRouter };
