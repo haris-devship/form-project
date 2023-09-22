@@ -121,13 +121,6 @@ const LoginPage = () => {
         .then((res) => {
           setData(res.data);
           setPicLoading(false);
-          toast({
-            title: "signUp success",
-            status: "success",
-            duration: 5000,
-            isClosable: true,
-            position: "bottom",
-          });
           setFirstName("");
           setLastName("");
           setAge("");
@@ -135,10 +128,19 @@ const LoginPage = () => {
           setEmail("");
           setPassword("");
           setConfirmPassword("");
+          setShowPassword(false);
           setImage(null);
+          toast({
+            title: "signUp success",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom",
+          });
+          
         })
         .catch((err) => {
-          console.log(err.response.data.message);
+          // console.log(err.response.data.message);
           toast({
             title: err.response.data.message,
             status: "warning",
@@ -339,3 +341,5 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
+
