@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const { connection } = require("./config/db");
 const { UserRouter } = require("./routes/user.routes");
+const { FormRouter } = require("./routes/form.routes");
 
 require("dotenv").config();
 
@@ -17,7 +18,7 @@ app.get("/", (req, res) => {
 
 app.use("/user",UserRouter)
 
-// app.post("/signup", async (req, res) => {});
+app.use('/form', FormRouter)
 
 app.listen(PORT, async () => {
   try {
