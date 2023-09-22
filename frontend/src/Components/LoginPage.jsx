@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Alert,
   AlertIcon,
+  Avatar,
   Box,
   Button,
   Container,
@@ -55,7 +56,6 @@ const LoginPage = () => {
         position: "bottom",
       });
       return;
-      // return;
     }
     if (pics.type === "image/jpeg" || pics.type === "image/png") {
       const data = new FormData();
@@ -69,7 +69,6 @@ const LoginPage = () => {
         .then((res) => res.json())
         .then((data) => {
           setImage(data.url.toString());
-          // console.log(data);
           setPicLoading(false);
         })
         .catch((err) => {
@@ -88,7 +87,6 @@ const LoginPage = () => {
       return;
     }
   };
-  // console.log(image);
 
   const handleRemoveImage = () => {
     setImage(null);
@@ -111,7 +109,7 @@ const LoginPage = () => {
     } else {
       setPasswordMatchError(false);
       axios
-        .post("http://localhost:8000/user/signup", {
+        .post("http://localhost:8000/user/api/signup", {
           firstName,
           lastName,
           age,
@@ -121,7 +119,6 @@ const LoginPage = () => {
           image,
         })
         .then((res) => {
-          // console.log(res.data);
           setData(res.data);
           setPicLoading(false);
           toast({
@@ -131,6 +128,14 @@ const LoginPage = () => {
             isClosable: true,
             position: "bottom",
           });
+          setFirstName("");
+          setLastName("");
+          setAge("");
+          setGender("");
+          setEmail("");
+          setPassword("");
+          setConfirmPassword("");
+          setImage(null);
         })
         .catch((err) => {
           console.log(err.response.data.message);
@@ -143,168 +148,192 @@ const LoginPage = () => {
           });
           setPicLoading(false);
         });
-      // console.log(firstName, lastName, age, gender, email, password, image);
     }
   };
 
-  // console.log(data);
-
   return (
     <>
-      <Flex>
-        <Container centerContent>
-          <Box boxShadow={"dark-lg"} p={10} mt={10}>
-            <Heading as="h2" size="lg" mb={6}>
-              Login
-            </Heading>
-            <form onSubmit={handleSubmit}>
-              <Stack spacing={4}>
-                <Flex gap={2}>
-                  <FormControl id="firstName" isRequired>
-                    <FormLabel>First Name</FormLabel>
-                    <Input
-                      type="text"
-                      name="firstName"
-                      // value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                    />
-                  </FormControl>
-
-                  <FormControl id="lastName" isRequired>
-                    <FormLabel>Last Name</FormLabel>
-                    <Input
-                      type="text"
-                      name="lastName"
-                      // value={formData.lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                    />
-                  </FormControl>
-                </Flex>
-
-                <FormControl id="age" isRequired>
-                  <FormLabel>Age</FormLabel>
+      {/* <Flex> */}
+      <Container centerContent>
+        <Box boxShadow={"dark-lg"} p={10} mt={10}>
+          <Heading as="h2" size="lg" mb={6}>
+            Login
+          </Heading>
+          <form onSubmit={handleSubmit}>
+            <Stack spacing={4}>
+              <Flex gap={2}>
+                <FormControl id="firstName" isRequired>
+                  <FormLabel>First Name</FormLabel>
                   <Input
-                    type="number"
-                    name="age"
-                    // value={formData.age}
-                    onChange={(e) => setAge(e.target.value)}
+                    type="text"
+                    name="firstName"
+                    // value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
                   />
                 </FormControl>
 
-                <FormControl id="gender" isRequired>
-                  <FormLabel>Gender</FormLabel>
-                  <RadioGroup name="gender" value={gender} onChange={setGender}>
-                    <Stack direction="row">
-                      <Radio value="male">Male</Radio>
-                      <Radio value="female">Female</Radio>
-                      <Radio value="other">Other</Radio>
-                    </Stack>
-                  </RadioGroup>
-                </FormControl>
-
-                <FormControl id="email" isRequired>
-                  <FormLabel>Email</FormLabel>
+                <FormControl id="lastName" isRequired>
+                  <FormLabel>Last Name</FormLabel>
                   <Input
-                    type="email"
-                    name="email"
-                    // value={formData.email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    type="text"
+                    name="lastName"
+                    // value={formData.lastName}
+                    onChange={(e) => setLastName(e.target.value)}
                   />
                 </FormControl>
+              </Flex>
 
-                <FormControl id="password" isRequired>
-                  <FormLabel>Password</FormLabel>
-                  <InputGroup>
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      // value={formData.password}
-                      onChange={(e) => setPassword(e.target.value)}
+              <FormControl id="age" isRequired>
+                <FormLabel>Age</FormLabel>
+                <Input
+                  type="number"
+                  name="age"
+                  // value={formData.age}
+                  onChange={(e) => setAge(e.target.value)}
+                />
+              </FormControl>
+
+              <FormControl id="gender" isRequired>
+                <FormLabel>Gender</FormLabel>
+                <RadioGroup name="gender" value={gender} onChange={setGender}>
+                  <Stack direction="row">
+                    <Radio value="male">Male</Radio>
+                    <Radio value="female">Female</Radio>
+                    <Radio value="other">Other</Radio>
+                  </Stack>
+                </RadioGroup>
+              </FormControl>
+
+              <FormControl id="email" isRequired>
+                <FormLabel>Email</FormLabel>
+                <Input
+                  type="email"
+                  name="email"
+                  // value={formData.email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </FormControl>
+
+              <FormControl id="password" isRequired>
+                <FormLabel>Password</FormLabel>
+                <InputGroup>
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    // value={formData.password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <InputRightElement width="3rem">
+                    <IconButton
+                      h="1.5rem"
+                      size="sm"
+                      onClick={() => setShowPassword(!showPassword)}
+                      icon={!showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                    ></IconButton>
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+
+              <FormControl id="confirmPassword" isRequired>
+                <FormLabel>Confirm Password</FormLabel>
+                <Input
+                  type="password"
+                  name="confirmPassword"
+                  // value={formData.confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </FormControl>
+              {passwordMatchError && (
+                <Alert status="error">
+                  <AlertIcon />
+                  Passwords do not match.
+                </Alert>
+              )}
+
+              <FormControl id="image">
+                <FormLabel>Image</FormLabel>
+                {image ? (
+                  <Stack direction="row" alignItems="center">
+                    <Image src={image} maxH="100px" maxW="100px" />
+
+                    <IconButton
+                      bottom={12}
+                      right={5}
+                      size="25"
+                      rounded="full"
+                      colorScheme="red"
+                      icon={<SmallCloseIcon />}
+                      onClick={handleRemoveImage}
                     />
-                    <InputRightElement width="3rem">
-                      <IconButton
-                        h="1.5rem"
-                        size="sm"
-                        onClick={() => setShowPassword(!showPassword)}
-                        icon={!showPassword ? <ViewIcon /> : <ViewOffIcon />}
-                      ></IconButton>
-                    </InputRightElement>
-                  </InputGroup>
-                </FormControl>
-
-                <FormControl id="confirmPassword" isRequired>
-                  <FormLabel>Confirm Password</FormLabel>
+                  </Stack>
+                ) : (
                   <Input
-                    type="password"
-                    name="confirmPassword"
-                    // value={formData.confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    type="file"
+                    name="image"
+                    onChange={(e) => postDetails(e.target.files[0])}
+                    accept="image/*"
                   />
-                </FormControl>
-                {passwordMatchError && (
-                  <Alert status="error">
-                    <AlertIcon />
-                    Passwords do not match.
-                  </Alert>
                 )}
+              </FormControl>
 
-                <FormControl id="image">
-                  <FormLabel>Image</FormLabel>
-                  {image ? (
-                    <Stack direction="row" alignItems="center">
-                      <Image src={image} maxH="100px" maxW="100px" />
-
-                      <IconButton
-                        bottom={12}
-                        right={5}
-                        size="25"
-                        rounded="full"
-                        colorScheme="red"
-                        icon={<SmallCloseIcon />}
-                        onClick={handleRemoveImage}
-                      />
-                    </Stack>
-                  ) : (
-                    <Input
-                      type="file"
-                      name="image"
-                      onChange={(e) => postDetails(e.target.files[0])}
-                      accept="image/*"
-                    />
-                  )}
-                </FormControl>
-
-                <Button
-                  loadingText="loading"
-                  isLoading={picLoading}
-                  type="submit"
-                  colorScheme="teal"
-                  size="lg"
-                >
-                  Submit
-                </Button>
-              </Stack>
-            </form>
+              <Button
+                loadingText="loading"
+                isLoading={picLoading}
+                type="submit"
+                colorScheme="teal"
+                size="lg"
+              >
+                Submit
+              </Button>
+            </Stack>
+          </form>
+        </Box>
+      </Container>
+      {data && (
+        <Container boxShadow={"dark-lg"} p={10} mt={10} centerContent>
+          <Box>
+            <Heading fontSize={30}>
+              Welcome, {data?.firstName} {data?.lastName}
+            </Heading>
           </Box>
-        </Container>
-        {data && (
-          <Container boxShadow={"dark-lg"} p={10} mt={10} centerContent>
+
+          <Flex gap={5} mt={10}>
             <Box>
-              <Heading fontSize={30}>
-                Welcome, {data?.firstName} {data?.lastName}
-              </Heading>
+              <Avatar size="xl" src={data?.image} />
             </Box>
-            <Box>
+            <Box textAlign={"left"}>
               <Text fontSize={20}>Email: {data?.email}</Text>
               <Text fontSize={20}>Age: {data?.age}</Text>
               <Text fontSize={20}>Gender: {data?.gender}</Text>
             </Box>
-            <Box>
-              <Image m={'auto'} w={"50%"} src={data?.image} />
-            </Box>
-          </Container>
-        )}
-      </Flex>
+          </Flex>
+        </Container>
+      )}
+
+      {/* {data &&
+        data.map((ele) => {
+          return (
+            <Container boxShadow={"dark-lg"} p={10} mt={10} centerContent>
+              <Box>
+                <Heading fontSize={30}>
+                  Welcome, {ele?.firstName} {data?.lastName}
+                </Heading>
+              </Box>
+
+              <Flex gap={5} mt={10}>
+                <Box>
+                  <Avatar size="xl" src={data?.image} />
+                </Box>
+                <Box textAlign={"left"}>
+                  <Text fontSize={20}>Email: {data?.email}</Text>
+                  <Text fontSize={20}>Age: {data?.age}</Text>
+                  <Text fontSize={20}>Gender: {data?.gender}</Text>
+                </Box>
+              </Flex>
+            </Container>
+          );
+        })} */}
+      {/* </Flex> */}
     </>
   );
 };
