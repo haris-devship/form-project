@@ -1,24 +1,27 @@
-import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
+import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
+  Avatar,
+  Badge,
   Box,
   Button,
+  Container,
+  Flex,
   FormControl,
   FormLabel,
+  Grid,
+  Heading,
   IconButton,
   Input,
+  Link,
   Select,
   Stack,
+  Text,
   useToast,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const DynamicForm = () => {
-  //   const [name, setName] = useState("");
-  //   const [age, setAge] = useState("");
-  //   const [url, setUrl] = useState("");
-  //   const [file, setFile] = useState(null);
-  //   const [status, setStatus] = useState("");
   const [forms, setForms] = useState([
     {
       name: "",
@@ -29,6 +32,8 @@ const DynamicForm = () => {
     },
   ]);
   const [loading, setLoading] = useState(false);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [data, setData] = useState();
   const toast = useToast();
 
   const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[a-zA-Z0-9].[^\s]*$/i;
@@ -105,7 +110,7 @@ const DynamicForm = () => {
       return;
     }
   };
-  
+
   const handleSubmit = async () => {
     console.log(forms);
     setLoading(true);
@@ -151,6 +156,27 @@ const DynamicForm = () => {
       setLoading(false);
     }
   };
+
+  const handleEditForm = (index) => {
+    setEditingIndex(index);
+    
+  };
+
+  const getFormsData = () => {
+    axios
+      .get("http://localhost:8000/form/api/getForm")
+      .then((res) => {
+        // console.log(res.data);
+        setData(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    getFormsData();
+  }, [getFormsData]);
 
   return (
     <>
@@ -258,6 +284,89 @@ const DynamicForm = () => {
           </Button>
         </Box>
       </Stack>
+
+      <Grid mt={10} templateColumns="repeat(3, 1fr)" gap={6}>
+        {data?.map((ele, index) => {
+          return (
+            <Box key={ele._id} boxShadow={"base"} p={5} rounded={"md"}>
+              <Flex alignItems={"center"} justifyContent={"space-between"}>
+                <Heading fontSize={20}>{ele.name}</Heading>
+                <IconButton
+                  onClick={() => handleEditForm(index)}
+                  colorScheme="red"
+                  variant={"solid"}
+                  size={"sm"}
+                  icon={<EditIcon />}
+                />
+                {/* {editingIndex === index ? (
+                  <Button
+                    onClick={() => handleSaveEditedForm(index)}
+                    colorScheme="blue"
+                    size="sm"
+                  >
+                    Save
+                  </Button>
+                ) : (
+                  <IconButton
+                    onClick={() => handleEditForm(index)}
+                    colorScheme="red"
+                    variant={"solid"}
+                    size={"sm"}
+                    icon={<EditIcon />}
+                  />
+                )} */}
+              </Flex>
+              <Flex
+                gap={5}
+                alignItems={"center"}
+                justifyContent={"space-evenly "}
+              >
+                <Avatar size={"lg"} src={ele.file} />
+                <Box textAlign={"left"}>
+                  <Box display={"flex"} flexDir={"row"}>
+                    <Text fontWeight={"bold"}>AGE</Text> : {ele.age}
+                  </Box>
+                  <Box
+                    justifyContent={"space-around"}
+                    display={"flex"}
+                    flexDir={"row"}
+                  >
+                    <Text fontWeight={"bold"}>URL</Text> :
+                    <Link fontWeight={"normal"} href={ele.url} isExternal>
+                      {ele.url}
+                    </Link>
+                  </Box>
+                  <Box textAlign={"left"}>
+                    <Text>
+                      {ele.status === "active" ? (
+                        <Badge
+                          fontSize={12}
+                          borderRadius={2}
+                          p={1}
+                          fontWeight={"bold"}
+                          colorScheme="green"
+                        >
+                          Active
+                        </Badge>
+                      ) : (
+                        <Badge
+                          fontSize={12}
+                          borderRadius={2}
+                          p={1}
+                          fontWeight={"bold"}
+                          colorScheme="red"
+                        >
+                          Not Active
+                        </Badge>
+                      )}
+                    </Text>
+                  </Box>
+                </Box>
+              </Flex>
+            </Box>
+          );
+        })}
+      </Grid>
     </>
   );
 };
