@@ -112,7 +112,17 @@ const DynamicForm = () => {
 
   const handleSubmit = async () => {
     // console.log(forms);
-    console.log("index", data[editingIndex]._id);
+    // console.log("index", data[editingIndex]._id);
+    if (forms[0].name === "" || forms[0].age === "" || forms[0].url === "") {
+      toast({
+        title: "Please fill all the fields!",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
     setLoading(true);
     try {
       if (editingIndex != null) {
