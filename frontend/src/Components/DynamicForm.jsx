@@ -4,7 +4,6 @@ import {
   Badge,
   Box,
   Button,
-  Container,
   Flex,
   FormControl,
   FormLabel,
@@ -32,9 +31,9 @@ const DynamicForm = () => {
     },
   ]);
   const [loading, setLoading] = useState(false);
-  const [editingIndex, setEditingIndex] = useState(null);
   const [data, setData] = useState();
   const toast = useToast();
+  const [editingIndex, setEditingIndex] = useState();
 
   const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[a-zA-Z0-9].[^\s]*$/i;
 
@@ -112,39 +111,78 @@ const DynamicForm = () => {
   };
 
   const handleSubmit = async () => {
-    console.log(forms);
+    // console.log(forms);
+    console.log("index", data[editingIndex]._id);
     setLoading(true);
     try {
-      const formDataArray = forms?.map((ele) => ({
-        name: ele.name,
-        age: ele.age,
-        url: ele.url,
-        file: ele.file,
-        status: ele.status,
-      }));
-
-      await axios
-        .post("http://localhost:8000/form/api/addForm", formDataArray)
-        .then((res) => {
-          //   console.log(res.data.message);
-          toast({
-            title: res.data.message,
-            status: "success",
-            isClosable: true,
-            duration: 3000,
+      if (editingIndex != null) {
+        // console.log(forms);
+        await axios
+          .put(
+            `http://localhost:8000/form/api/update/${data[editingIndex]._id}`,
+            {
+              name: forms[0].name,
+              age: forms[0].age,
+              url: forms[0].url,
+              status: forms[0].status,
+            }
+          )
+          .then((res) => {
+            console.log(res);
+            // console.log(forms[0].name);
+            setLoading(false);
+            toast({
+              title: res.data.message,
+              status: "success",
+              isClosable: true,
+              duration: 3000,
+            });
+            setEditingIndex(null);
+          })
+          .catch((err) => {
+            console.log(err);
+            setLoading(false);
           });
-          setLoading(false);
-        })
-        .catch((err) => {
-          setLoading(false);
-          //   console.log(err);
-          toast({
-            title: "Failed to Add, Try again",
-            status: "error",
-            isClosable: true,
-            duration: 3000,
+      } else {
+        const formDataArray = forms?.map((ele) => ({
+          name: ele.name,
+          age: ele.age,
+          url: ele.url,
+          file: ele.file,
+          status: ele.status,
+        }));
+        await axios
+          .post("http://localhost:8000/form/api/addForm", formDataArray)
+          .then((res) => {
+            //   console.log(res.data.message);
+            toast({
+              title: res.data.message,
+              status: "success",
+              isClosable: true,
+              duration: 3000,
+            });
+            setLoading(false);
+            setForms([
+              {
+                name: "",
+                age: "",
+                url: "",
+                file: null,
+                status: "active",
+              },
+            ]);
+          })
+          .catch((err) => {
+            setLoading(false);
+            //   console.log(err);
+            toast({
+              title: "Failed to Add, Try again",
+              status: "error",
+              isClosable: true,
+              duration: 3000,
+            });
           });
-        });
+      }
     } catch (err) {
       console.log(err);
       toast({
@@ -159,8 +197,18 @@ const DynamicForm = () => {
 
   const handleEditForm = (index) => {
     setEditingIndex(index);
-    
+    const updatedForms = forms;
+    // console.log(updatedForms);
+    updatedForms[0].name = data[index].name;
+    updatedForms[0].age = data[index].age;
+    updatedForms[0].url = data[index].url;
+    updatedForms[0].file = data[index].file;
+    updatedForms[0].status = data[index].status;
+
+    setForms(updatedForms);
   };
+
+  //   console.log()
 
   const getFormsData = () => {
     axios
@@ -285,20 +333,23 @@ const DynamicForm = () => {
         </Box>
       </Stack>
 
-      <Grid mt={10} templateColumns="repeat(3, 1fr)" gap={6}>
-        {data?.map((ele, index) => {
-          return (
-            <Box key={ele._id} boxShadow={"base"} p={5} rounded={"md"}>
-              <Flex alignItems={"center"} justifyContent={"space-between"}>
-                <Heading fontSize={20}>{ele.name}</Heading>
-                <IconButton
-                  onClick={() => handleEditForm(index)}
-                  colorScheme="red"
-                  variant={"solid"}
-                  size={"sm"}
-                  icon={<EditIcon />}
-                />
-                {/* {editingIndex === index ? (
+      {data === null ? (
+        <Text>No Data</Text>
+      ) : (
+        <Grid mt={10} templateColumns="repeat(3, 1fr)" gap={6}>
+          {data?.map((ele, index) => {
+            return (
+              <Box key={ele._id} boxShadow={"base"} p={5} rounded={"md"}>
+                <Flex alignItems={"center"} justifyContent={"space-between"}>
+                  <Heading fontSize={20}>{ele.name}</Heading>
+                  <IconButton
+                    onClick={() => handleEditForm(index)}
+                    colorScheme="red"
+                    variant={"solid"}
+                    size={"sm"}
+                    icon={<EditIcon />}
+                  />
+                  {/* {editingIndex === index ? (
                   <Button
                     onClick={() => handleSaveEditedForm(index)}
                     colorScheme="blue"
@@ -315,58 +366,59 @@ const DynamicForm = () => {
                     icon={<EditIcon />}
                   />
                 )} */}
-              </Flex>
-              <Flex
-                gap={5}
-                alignItems={"center"}
-                justifyContent={"space-evenly "}
-              >
-                <Avatar size={"lg"} src={ele.file} />
-                <Box textAlign={"left"}>
-                  <Box display={"flex"} flexDir={"row"}>
-                    <Text fontWeight={"bold"}>AGE</Text> : {ele.age}
-                  </Box>
-                  <Box
-                    justifyContent={"space-around"}
-                    display={"flex"}
-                    flexDir={"row"}
-                  >
-                    <Text fontWeight={"bold"}>URL</Text> :
-                    <Link fontWeight={"normal"} href={ele.url} isExternal>
-                      {ele.url}
-                    </Link>
-                  </Box>
+                </Flex>
+                <Flex
+                  gap={5}
+                  alignItems={"center"}
+                  justifyContent={"space-evenly "}
+                >
+                  <Avatar size={"lg"} src={ele.file} />
                   <Box textAlign={"left"}>
-                    <Text>
-                      {ele.status === "active" ? (
-                        <Badge
-                          fontSize={12}
-                          borderRadius={2}
-                          p={1}
-                          fontWeight={"bold"}
-                          colorScheme="green"
-                        >
-                          Active
-                        </Badge>
-                      ) : (
-                        <Badge
-                          fontSize={12}
-                          borderRadius={2}
-                          p={1}
-                          fontWeight={"bold"}
-                          colorScheme="red"
-                        >
-                          Not Active
-                        </Badge>
-                      )}
-                    </Text>
+                    <Box display={"flex"} flexDir={"row"}>
+                      <Text fontWeight={"bold"}>AGE</Text> : {ele.age}
+                    </Box>
+                    <Box
+                      justifyContent={"space-around"}
+                      display={"flex"}
+                      flexDir={"row"}
+                    >
+                      <Text fontWeight={"bold"}>URL</Text> :
+                      <Link fontWeight={"normal"} href={ele.url} isExternal>
+                        {ele.url}
+                      </Link>
+                    </Box>
+                    <Box textAlign={"left"}>
+                      <Text>
+                        {ele.status === "active" ? (
+                          <Badge
+                            fontSize={12}
+                            borderRadius={2}
+                            p={1}
+                            fontWeight={"bold"}
+                            colorScheme="green"
+                          >
+                            Active
+                          </Badge>
+                        ) : (
+                          <Badge
+                            fontSize={12}
+                            borderRadius={2}
+                            p={1}
+                            fontWeight={"bold"}
+                            colorScheme="red"
+                          >
+                            Not Active
+                          </Badge>
+                        )}
+                      </Text>
+                    </Box>
                   </Box>
-                </Box>
-              </Flex>
-            </Box>
-          );
-        })}
-      </Grid>
+                </Flex>
+              </Box>
+            );
+          })}
+        </Grid>
+      )}
     </>
   );
 };

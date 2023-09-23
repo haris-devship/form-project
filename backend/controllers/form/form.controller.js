@@ -35,4 +35,33 @@ module.exports = {
       });
     }
   },
+  async updateForm(req, res) {
+    try {
+      const formId = req.params.id;
+      const { name, age, url, status } = req.body;
+
+      const updatedForm = await FormModel.findByIdAndUpdate(
+        formId,
+        { name, age, url, status },
+        {
+          new: true,
+        }
+      );
+
+      if (!updatedForm) {
+        return res.status(404).send({
+          message: "Form Not Found",
+        });
+      }
+
+      res
+        .status(200)
+        .send({ message: "Form Updated Successfully", data: updatedForm });
+    } catch (err) {
+      console.log(err);
+      res.status(500).send({
+        message: "Error Updating Form",
+      });
+    }
+  },
 };
