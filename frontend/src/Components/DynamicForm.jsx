@@ -17,7 +17,7 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 const DynamicForm = () => {
@@ -184,7 +184,7 @@ const DynamicForm = () => {
           })
           .catch((err) => {
             setLoading(false);
-            //   console.log(err);
+              console.log(err);
             toast({
               title: "Failed to Add, Try again",
               status: "error",
@@ -220,21 +220,23 @@ const DynamicForm = () => {
 
   //   console.log()
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getFormsData = () => {
     axios
-      .get("http://localhost:8000/form/api/getForm")
-      .then((res) => {
-        // console.log(res.data);
-        setData(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    .get("http://localhost:8000/form/api/getForm")
+    .then((res) => {
+      // console.log(res.data);
+      setData(res.data);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
   };
-
+  
   useEffect(() => {
     getFormsData();
   }, [getFormsData]);
+  
 
   return (
     <>
