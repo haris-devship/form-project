@@ -17,8 +17,6 @@ module.exports = (app) => {
     try {
       let CheckUser = await GetDocument("users", { email }, {});
 
-      // console.log(CheckUser,"controllers");
-
       if (CheckUser.length > 0) {
         return res.json({ response: "Email already exists" });
       }

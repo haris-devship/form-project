@@ -5,7 +5,6 @@ const library = require("../../models/library.js");
 module.exports = (app) => {
   try {
     var user = require("../../controllers/user/user.controller.js")(app);
-    // console.log(user.register);
     app.post(
       "/user/create",
       [
