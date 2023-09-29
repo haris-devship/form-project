@@ -47,7 +47,7 @@ module.exports = (app) => {
   };
 
   router.updateUser = async (req, res) => {
-    const {id, firstName, lastName, age, email, password, image } = req.body;
+    const { id, firstName, lastName, age, email, password, image } = req.body;
     let errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res
@@ -56,6 +56,10 @@ module.exports = (app) => {
     }
     try {
       let CheckUser = await GetDocument("users", { email }, {});
+
+      if (!CheckUser.length > 0) {
+        return res.status(401).send({ message: "User is invalid" });
+      }
     } catch (err) {
       console.log(err);
       return res.status(500).json({ message: "Failed to update the user" });
