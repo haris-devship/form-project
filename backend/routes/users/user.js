@@ -16,7 +16,8 @@ module.exports = (app) => {
       user.register
     );
 
-    app.get("/user/check", user.getData);
+    app.post("/user/update",user.updateUser)
+
   } catch (err) {
     console.log(`Error occurred routes/user/user.js ${err}`);
   }

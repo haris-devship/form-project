@@ -46,8 +46,21 @@ module.exports = (app) => {
     }
   };
 
-  router.getData = (req, res) => {
-    res.send("Welcome to the controller!");
+  router.updateUser = async (req, res) => {
+    const {id, firstName, lastName, age, email, password, image } = req.body;
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(422)
+        .json({ message: "Invalid credentials", errors: errors });
+    }
+    try {
+      let CheckUser = await GetDocument("users", { email }, {});
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ message: "Failed to update the user" });
+    }
   };
+
   return router;
 };
