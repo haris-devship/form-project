@@ -35,7 +35,21 @@ const InsertDocument = (collection, docs) => {
   });
 };
 
+//Update on Document
+const UpdateDocument = (collection, query, params, options) => {
+  return new Promise((resolve, reject) => [
+    database[collection].updateOne(query, params, options, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    }),
+  ]);
+};
+
 module.exports = {
   InsertDocument: InsertDocument,
   GetDocument: GetDocument,
+  UpdateDocument: UpdateDocument,
 };

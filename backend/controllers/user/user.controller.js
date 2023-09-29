@@ -60,6 +60,8 @@ module.exports = (app) => {
       if (!CheckUser.length > 0) {
         return res.status(401).send({ message: "User is invalid" });
       }
+
+      
     } catch (err) {
       console.log(err);
       return res.status(500).json({ message: "Failed to update the user" });
