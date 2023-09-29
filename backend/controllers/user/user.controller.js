@@ -47,7 +47,7 @@ module.exports = (app) => {
   };
 
   router.updateUser = async (req, res) => {
-    const { id, firstName, lastName, age, email, password, image } = req.body;
+    const { id, firstName, lastName, age, email, image } = req.body;
     let errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res
@@ -61,7 +61,26 @@ module.exports = (app) => {
         return res.status(401).send({ message: "User is invalid" });
       }
 
-      
+      const updateUser = {
+        firstName: firstName,
+        lastName: lastName,
+        age: age,
+        email: email,
+        image: image,
+      };
+
+      let update = await db.UpdateDocument(
+        "users",
+        { _id: ObjectId(CheckUser._id) },
+        updateUser,
+        {}
+      );
+
+      if (update && update.nModified != 0) {
+        res.json({ status: 1, response: "Password update successfully" });
+      } else {
+        res.json({ status: 0, response: "Password update failed" });
+      }
     } catch (err) {
       console.log(err);
       return res.status(500).json({ message: "Failed to update the user" });
