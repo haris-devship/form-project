@@ -49,7 +49,7 @@ const UpdateDocument = (collection, query, params, options) => {
 };
 
 //Delete One Document
-const DeleteOneDocument = () => {
+const DeleteOneDocument = (collection, query) => {
   return new Promise((resolve, reject) => {
     database[collection].deleteOne(query, (err, result) => {
       if (err) {

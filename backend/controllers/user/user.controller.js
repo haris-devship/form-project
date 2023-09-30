@@ -87,5 +87,16 @@ module.exports = (app) => {
     }
   };
 
+  router.deleteUser = async (req, res) => {
+    const { id } = req.params;
+
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(422)
+        .json({ message: "Invalid credentials", errors: errors });
+    }
+  };
+
   return router;
 };
