@@ -1,6 +1,10 @@
 const db = require("../db_adaptor/mongodb");
 const { validationResult } = require("express-validator");
-const { GetDocument } = require("../db_adaptor/mongodb");
+const {
+  GetDocument,
+  UpdateDocument,
+  DeleteOneDocument,
+} = require("../db_adaptor/mongodb");
 const bcrypt = require("bcrypt");
 
 module.exports = (app) => {
@@ -69,7 +73,7 @@ module.exports = (app) => {
         image: image,
       };
 
-      let update = await db.UpdateDocument(
+      let update = await UpdateDocument(
         "users",
         { _id: ObjectId(CheckUser._id) },
         updateUser,
@@ -88,13 +92,40 @@ module.exports = (app) => {
   };
 
   router.deleteUser = async (req, res) => {
-    const { id } = req.params;
+    const { id } = req.body;
 
     let errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res
         .status(422)
         .json({ message: "Invalid credentials", errors: errors });
+    }
+
+    try {
+      const findUser = await GetDocument(
+        "users",
+        {
+          _id: ObjectId(id),
+        },
+        {}
+      );
+
+      if (!findUser) {
+        return res.status(401).send({ message: "User is Not Found" });
+      }
+
+      const deleteUser = await DeleteOneDocument("users", {
+        _id: ObjectId(id),
+      });
+
+      if (!deleteUser) {
+        return res.status(401).send({ message: "Unable to delete User" });
+      }
+
+      res.status(200).send({ message: "User deleted successfully" });
+    } catch (err) {
+      console.log("Error deleting user", err);
+      res.status(500).send({ message: "Error deleting user" });
     }
   };
 
