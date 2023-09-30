@@ -48,8 +48,22 @@ const UpdateDocument = (collection, query, params, options) => {
   ]);
 };
 
+//Delete One Document
+const DeleteOneDocument = () => {
+  return new Promise((resolve, reject) => {
+    database[collection].deleteOne(query, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
 module.exports = {
   InsertDocument: InsertDocument,
   GetDocument: GetDocument,
   UpdateDocument: UpdateDocument,
+  DeleteOneDocument: DeleteOneDocument,
 };
